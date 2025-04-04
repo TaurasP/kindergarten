@@ -146,7 +146,7 @@ const Groups: React.FC = () => {
                       <input
                         type="text"
                         placeholder="Search by group name or number of children in the group"
-                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-100"
+                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-120"
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
                           const filteredGroups = groupResponse.filter(
@@ -205,9 +205,12 @@ const Groups: React.FC = () => {
                             <Button
                               id="group-edit"
                               variant="default"
-                              //   onClick={}
+                              onClick={() =>
+                                navigate(`/group-form/${group.id}`, {
+                                  state: { group },
+                                })
+                              }
                               className="cursor-pointer mr-2"
-                              //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faPencil} />
                             </Button>

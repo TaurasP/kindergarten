@@ -2,7 +2,7 @@ import { Child } from "@/models/Child";
 import { Group } from "@/models/Group";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 
 const GroupForm: React.FC = () => {
   const [group, setGroup] = useState<Group>({
@@ -13,6 +13,33 @@ const GroupForm: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Child[]>([]);
   const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams(); // Get the group ID from the route parameters
+
+  useEffect(() => {
+    // Check if group data is passed via location.state
+    if (location.state?.group) {
+      setGroup(location.state.group);
+    } else if (id) {
+      // Fetch group data by ID if not passed via location.state
+      const fetchGroup = async () => {
+        try {
+          const response = await axios.get(
+            `http://localhost:8080/groups/${id}`,
+            {
+              headers: {
+                Authorization: localStorage.getItem("token"),
+              },
+            }
+          );
+          setGroup(response.data);
+        } catch (error) {
+          console.error("Error fetching group:", error);
+        }
+      };
+      fetchGroup();
+    }
+  }, [id, location.state]);
 
   const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setGroup({ ...group, name: e.target.value });
@@ -86,12 +113,23 @@ const GroupForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post("http://localhost:8080/groups", group, {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-          "Content-Type": "application/json",
-        },
-      });
+      if (group.id) {
+        // Update existing group
+        await axios.put(`http://localhost:8080/groups/${group.id}`, group, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        });
+      } else {
+        // Create new group
+        await axios.post("http://localhost:8080/groups", group, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        });
+      }
       navigate("/groups");
     } catch (error) {
       console.error("Error submitting group:", error);

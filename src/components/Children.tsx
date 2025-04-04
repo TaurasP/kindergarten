@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import axios from "axios";
 import { Child } from "@/models/Child";
+import { Group } from "@/models/Group";
 import {
   Table,
   TableBody,
@@ -36,6 +37,7 @@ import {
 
 const Children: React.FC = () => {
   const [children, setChildren] = useState<Child[]>([]);
+  const [groups, setGroups] = useState<Group[]>([]);
   const [childrenResponse, setChildrenResponse] = useState<Data[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const childrenPerPage = 10;
@@ -48,26 +50,45 @@ const Children: React.FC = () => {
   };
 
   useEffect(() => {
-    const fetchChildren = async () => {
+    const fetchChildrenAndGroups = async () => {
       try {
-        const response = await axios.get<Child[]>(
+        // Fetch children
+        const childrenResponse = await axios.get<Child[]>(
           "http://localhost:8080/children",
           {
             headers: { Authorization: localStorage.getItem("token") },
           }
         );
-        setChildrenResponse(response.data);
-        const childrenData = response.data.sort(
-          (a: { name: string }, b: { name: string }) =>
-            a.name.localeCompare(b.name)
+
+        // Fetch groups
+        const groupsResponse = await axios.get<Group[]>(
+          "http://localhost:8080/groups",
+          {
+            headers: { Authorization: localStorage.getItem("token") },
+          }
         );
-        setChildren(childrenData);
+
+        setGroups(groupsResponse.data);
+
+        // Map groupId to groupName for each child
+        const childrenWithGroupNames = childrenResponse.data.map((child) => {
+          const group = groupsResponse.data.find(
+            (group) => group.id === child.groupId
+          );
+          return { ...child, groupName: group ? group.name : "-" };
+        });
+
+        setChildrenResponse(childrenWithGroupNames);
+        const sortedChildren = childrenWithGroupNames.sort((a, b) =>
+          a.name.localeCompare(b.name)
+        );
+        setChildren(sortedChildren);
       } catch (error) {
-        console.error("Error fetching children:", error);
+        console.error("Error fetching data:", error);
       }
     };
 
-    fetchChildren();
+    fetchChildrenAndGroups();
   }, []);
 
   const calculateAge = (dateOfBirth: string): number => {
@@ -138,7 +159,7 @@ const Children: React.FC = () => {
                   </Button>
                 </NavbarRight>
               </NavbarComponent>
-              <div className="flex flex-col justify-between bg-gray-100">
+              <div className="flex flex-col justify-between bg-gray-120">
                 <div className="flex-grow">
                   <h1 className="text-3xl mb-5">Children</h1>
                   <div className="flex items-center justify-between mb-5">
@@ -191,14 +212,15 @@ const Children: React.FC = () => {
                           Date of birth
                         </TableHead>
                         <TableHead className="w-[100px]">Age</TableHead>
+                        <TableHead className="w-[150px]">Group</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {currentChildren.map((child: Child, index: number) => (
-                        <TableRow>
+                        <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell key={index}>{child.name}</TableCell>
+                          <TableCell>{child.name}</TableCell>
                           <TableCell>{child.surname}</TableCell>
                           <TableCell>
                             {
@@ -210,15 +232,18 @@ const Children: React.FC = () => {
                           <TableCell>
                             {calculateAge(child.dateOfBirth)}
                           </TableCell>
+                          <TableCell
+                            style={{
+                              color:
+                                child.groupName === "-" ? "#858586" : "black",
+                            }}
+                          >
+                            {child.groupName}
+                          </TableCell>
                           <TableCell className="text-right">
                             <Button
                               id="child-info"
                               variant="default"
-                              //   onClick={() =>
-                              //     navigate(`/groups/${group.id}`, {
-                              //       state: { group },
-                              //     })
-                              //   }
                               className="cursor-pointer mr-2"
                             >
                               <FontAwesomeIcon icon={faInfo} />
@@ -226,18 +251,14 @@ const Children: React.FC = () => {
                             <Button
                               id="child-edit"
                               variant="default"
-                              //   onClick={}
                               className="cursor-pointer mr-2"
-                              //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faPencil} />
                             </Button>
                             <Button
                               id="child-delete"
                               variant="default"
-                              //   onClick={}
                               className="cursor-pointer"
-                              //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faXmark} />
                             </Button>

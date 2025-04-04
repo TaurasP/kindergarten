@@ -41,6 +41,14 @@ function App() {
             }
           />
           <Route
+            path="/group-form/:id"
+            element={
+              <ProtectedRoute>
+                <GroupForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/children"
             element={
               <ProtectedRoute>

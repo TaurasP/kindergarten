@@ -4,4 +4,5 @@ export interface Child {
     surname: string;
     dateOfBirth: string;
     groupId: number;
+    groupName: string;
   }

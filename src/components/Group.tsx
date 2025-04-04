@@ -142,7 +142,7 @@ const Group: React.FC = () => {
                       <input
                         type="text"
                         placeholder="Search by name, surname, date of birth, or age"
-                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-100"
+                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-120"
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
                           const filteredChildren = group.children.filter(
@@ -184,9 +184,9 @@ const Group: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {currentChildren.map((child: Child, index: number) => (
-                        <TableRow>
+                        <TableRow key={index}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell key={index}>{child.name}</TableCell>
+                          <TableCell>{child.name}</TableCell>
                           <TableCell>{child.surname}</TableCell>
                           <TableCell>
                             {
@@ -212,11 +212,14 @@ const Group: React.FC = () => {
                               <FontAwesomeIcon icon={faInfo} />
                             </Button>
                             <Button
-                              id="group-edit"
+                              id="child-edit"
                               variant="default"
-                              //   onClick={}
+                              // onClick={() =>
+                              //   navigate(`/group-form/${group.id}`, {
+                              //     state: { group },
+                              //   })
+                              // }
                               className="cursor-pointer mr-2"
-                              //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faPencil} />
                             </Button>
