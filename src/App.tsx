@@ -5,6 +5,8 @@ import Groups from "./components/Groups";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Group from "./components/Group";
+import GroupForm from "./components/GroupForm";
+import Children from "./components/Children";
 
 function App() {
   return (
@@ -27,6 +29,22 @@ function App() {
             element={
               <ProtectedRoute>
                 <Group />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/group-form"
+            element={
+              <ProtectedRoute>
+                <GroupForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/children"
+            element={
+              <ProtectedRoute>
+                <Children />
               </ProtectedRoute>
             }
           />

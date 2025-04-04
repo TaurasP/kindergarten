@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom";
 import {
   Pagination,
   PaginationContent,
@@ -7,6 +6,18 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
+import {
+  Navbar as NavbarComponent,
+  NavbarLeft,
+  NavbarRight,
+} from "@/components/ui/navbar";
+import icon from "@/assets/icon.png";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "@/context/AuthContext";
+import axios from "axios";
+import { Child } from "@/models/Child";
 import {
   Table,
   TableBody,
@@ -17,31 +28,47 @@ import {
 } from "./ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  faPencil,
-  faXmark,
-  faPlus,
   faInfo,
+  faPencil,
+  faPlus,
+  faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { Button } from "@/components/ui/button";
-import {
-  Navbar as NavbarComponent,
-  NavbarLeft,
-  NavbarRight,
-} from "@/components/ui/navbar";
-import icon from "@/assets/icon.png";
-import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@/context/AuthContext";
-import { Child } from "@/models/Child";
-import { useContext, useState } from "react";
 
-const Group: React.FC = () => {
-  const location = useLocation();
-  const group = location.state?.group;
+const Children: React.FC = () => {
+  const [children, setChildren] = useState<Child[]>([]);
+  const [childrenResponse, setChildrenResponse] = useState<Data[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const childrenPerPage = 10;
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
-  const [filteredChildren, setFilteredChildren] = useState(group.children);
+
+  const handleLogout = () => {
+    authContext?.logout();
+    navigate("/login");
+  };
+
+  useEffect(() => {
+    const fetchChildren = async () => {
+      try {
+        const response = await axios.get<Child[]>(
+          "http://localhost:8080/children",
+          {
+            headers: { Authorization: localStorage.getItem("token") },
+          }
+        );
+        setChildrenResponse(response.data);
+        const childrenData = response.data.sort(
+          (a: { name: string }, b: { name: string }) =>
+            a.name.localeCompare(b.name)
+        );
+        setChildren(childrenData);
+      } catch (error) {
+        console.error("Error fetching children:", error);
+      }
+    };
+
+    fetchChildren();
+  }, []);
 
   const calculateAge = (dateOfBirth: string): number => {
     const birthDate = new Date(dateOfBirth);
@@ -57,23 +84,12 @@ const Group: React.FC = () => {
     return age;
   };
 
-  const handleLogout = () => {
-    authContext?.logout();
-    navigate("/login");
-  };
-
-  const sortedChildren = filteredChildren.sort(
-    (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name)
-  );
   const indexOfLastChild = currentPage * childrenPerPage;
-  const indexOfFirstChild = indexOfLastChild - childrenPerPage;
-  const currentChildren = sortedChildren.slice(
-    indexOfFirstChild,
-    indexOfLastChild
-  );
+  const indexOfFirstGroup = indexOfLastChild - childrenPerPage;
+  const currentChildren = children.slice(indexOfFirstGroup, indexOfLastChild);
 
   const nextPage = () => {
-    if (currentPage < Math.ceil(filteredChildren.length / childrenPerPage)) {
+    if (currentPage < Math.ceil(children.length / childrenPerPage)) {
       setCurrentPage(currentPage + 1);
     }
   };
@@ -83,10 +99,6 @@ const Group: React.FC = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  if (!group) {
-    return <div>No group data available.</div>;
-  }
 
   return (
     <>
@@ -110,7 +122,7 @@ const Group: React.FC = () => {
                     Groups
                   </a>
                   <a
-                    className="ml-5"
+                    className="ml-5 font-semibold"
                     href={authContext?.isAuthenticated ? "/children" : "/login"}
                   >
                     Children
@@ -128,25 +140,25 @@ const Group: React.FC = () => {
               </NavbarComponent>
               <div className="flex flex-col justify-between bg-gray-100">
                 <div className="flex-grow">
-                  <h1 className="text-3xl mb-5">Group "{group.name}"</h1>
+                  <h1 className="text-3xl mb-5">Children</h1>
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center">
                       <Button
-                        id="child-add-to-group"
+                        id="child-add"
                         variant="default"
-                        //   onClick={() => navigate("/child-form")}
-                        className="cursor-pointer"
+                        onClick={() => navigate("/child-form")}
+                        className="cursor-pointer mr-3"
                       >
                         <FontAwesomeIcon icon={faPlus} />
                       </Button>
                       <input
                         type="text"
                         placeholder="Search by name, surname, date of birth, or age"
-                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-100"
+                        className="border border-gray-300 rounded px-4 py-2 h-9 w-100"
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
-                          const filteredChildren = group.children.filter(
-                            (child: Child) => {
+                          const filteredChildren = childrenResponse.filter(
+                            (child) => {
                               const age = calculateAge(
                                 child.dateOfBirth
                               ).toString();
@@ -163,8 +175,8 @@ const Group: React.FC = () => {
                               );
                             }
                           );
+                          setChildren(filteredChildren);
                           setCurrentPage(1);
-                          setFilteredChildren(filteredChildren);
                         }}
                       />
                     </div>
@@ -212,7 +224,7 @@ const Group: React.FC = () => {
                               <FontAwesomeIcon icon={faInfo} />
                             </Button>
                             <Button
-                              id="group-edit"
+                              id="child-edit"
                               variant="default"
                               //   onClick={}
                               className="cursor-pointer mr-2"
@@ -221,7 +233,7 @@ const Group: React.FC = () => {
                               <FontAwesomeIcon icon={faPencil} />
                             </Button>
                             <Button
-                              id="group-delete"
+                              id="child-delete"
                               variant="default"
                               //   onClick={}
                               className="cursor-pointer"
@@ -235,7 +247,7 @@ const Group: React.FC = () => {
                     </TableBody>
                   </Table>
                 </div>
-                {group.children.length > childrenPerPage && (
+                {children.length > childrenPerPage && (
                   <Pagination className="mt-auto pt-5">
                     <PaginationContent>
                       <PaginationItem>
@@ -259,4 +271,4 @@ const Group: React.FC = () => {
   );
 };
 
-export default Group;
+export default Children;

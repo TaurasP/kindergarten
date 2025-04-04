@@ -12,7 +12,8 @@ const Register: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (!email || !password || !confirmPassword) {
       alert("All fields are required");
       return;
@@ -34,8 +35,10 @@ const Register: React.FC = () => {
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
       <Card className="mx-auto max-w-sm min-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Register</CardTitle>
+        <CardHeader className="space-y-1 text-center">
+          <CardTitle className="text-2xl font-bold">
+            Kindergarten "Šilelis"
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -74,6 +77,13 @@ const Register: React.FC = () => {
             </div>
             <Button type="submit" className="w-full cursor-pointer">
               Register
+            </Button>
+            <Button
+              variant="outline"
+              className="w-full cursor-pointer"
+              onClick={() => navigate("/login")}
+            >
+              Login
             </Button>
           </form>
         </CardContent>

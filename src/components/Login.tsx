@@ -35,8 +35,10 @@ const Login: React.FC = () => {
   return (
     <div className="bg-gray-100 min-h-screen flex flex-col items-center justify-center">
       <Card className="mx-auto max-w-sm min-w-md">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">
+            Kindergarten "Šilelis"
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleLogin} className="space-y-4">

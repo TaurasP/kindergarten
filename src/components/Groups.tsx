@@ -6,14 +6,13 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-// import Navigation from "@/components/ui/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Navbar as NavbarComponent,
   NavbarLeft,
   NavbarRight,
 } from "@/components/ui/navbar";
-import rockingHorseIcon from "@/assets/rocking-horse.png";
+import icon from "@/assets/icon.png";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
@@ -28,7 +27,12 @@ import {
   TableRow,
 } from "./ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faInfo } from "@fortawesome/free-solid-svg-icons";
+import {
+  faInfo,
+  faPencil,
+  faPlus,
+  faXmark,
+} from "@fortawesome/free-solid-svg-icons";
 
 interface GroupResponse {
   id: number;
@@ -38,9 +42,9 @@ interface GroupResponse {
 
 const Groups: React.FC = () => {
   const [groups, setGroups] = useState<GroupResponse[]>([]);
-  const [groupResponse, setGroupResponse] = useState<Data[]>([]);
+  const [groupResponse, setGroupResponse] = useState<GroupResponse[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const groupsPerPage = 20;
+  const groupsPerPage = 10;
   const navigate = useNavigate();
   const authContext = useContext(AuthContext);
 
@@ -101,13 +105,20 @@ const Groups: React.FC = () => {
                     className="flex items-center gap-2 text-xl font-bold cursor-pointer"
                     onClick={() => navigate("/groups")}
                   >
-                    <img
-                      src={rockingHorseIcon}
-                      alt="Rocking Horse Icon"
-                      className="h-15 w-15"
-                    />{" "}
+                    <img src={icon} className="h-10 w-10" />{" "}
                   </a>
-                  {/* <Navigation /> */}
+                  <a
+                    className="ml-5 font-semibold"
+                    href={authContext?.isAuthenticated ? "/groups" : "/login"}
+                  >
+                    Groups
+                  </a>
+                  <a
+                    className="ml-5"
+                    href={authContext?.isAuthenticated ? "/children" : "/login"}
+                  >
+                    Children
+                  </a>
                 </NavbarLeft>
                 <NavbarRight>
                   <Button
@@ -122,6 +133,35 @@ const Groups: React.FC = () => {
               <div className="flex flex-col justify-between bg-gray-100">
                 <div className="flex-grow">
                   <h1 className="text-3xl mb-5">Groups</h1>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center">
+                      <Button
+                        id="group-add"
+                        variant="default"
+                        onClick={() => navigate("/group-form")}
+                        className="cursor-pointer"
+                      >
+                        <FontAwesomeIcon icon={faPlus} />
+                      </Button>
+                      <input
+                        type="text"
+                        placeholder="Search by group name or number of children in the group"
+                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-100"
+                        onChange={(e) => {
+                          const searchTerm = e.target.value.toLowerCase();
+                          const filteredGroups = groupResponse.filter(
+                            (group) =>
+                              group.name.toLowerCase().includes(searchTerm) ||
+                              group.children.length
+                                .toString()
+                                .includes(searchTerm)
+                          );
+                          setGroups(filteredGroups);
+                          setCurrentPage(1);
+                        }}
+                      />
+                    </div>
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
@@ -157,10 +197,28 @@ const Groups: React.FC = () => {
                                   state: { group },
                                 })
                               }
-                              className="cursor-pointer"
+                              className="cursor-pointer mr-2"
                               disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faInfo} />
+                            </Button>
+                            <Button
+                              id="group-edit"
+                              variant="default"
+                              //   onClick={}
+                              className="cursor-pointer mr-2"
+                              //   disabled={group.children.length === 0}
+                            >
+                              <FontAwesomeIcon icon={faPencil} />
+                            </Button>
+                            <Button
+                              id="group-delete"
+                              variant="default"
+                              //   onClick={}
+                              className="cursor-pointer mr-2"
+                              //   disabled={group.children.length === 0}
+                            >
+                              <FontAwesomeIcon icon={faXmark} />
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -168,19 +226,21 @@ const Groups: React.FC = () => {
                     </TableBody>
                   </Table>
                 </div>
-                <Pagination className="mt-auto pt-5">
-                  <PaginationContent>
-                    <PaginationItem>
-                      <PaginationPrevious href="#" onClick={prevPage} />
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationLink href="#">{currentPage}</PaginationLink>
-                    </PaginationItem>
-                    <PaginationItem>
-                      <PaginationNext href="#" onClick={nextPage} />
-                    </PaginationItem>
-                  </PaginationContent>
-                </Pagination>
+                {groups.length > groupsPerPage && (
+                  <Pagination className="mt-auto pt-5">
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious href="#" onClick={prevPage} />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink href="#">{currentPage}</PaginationLink>
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationNext href="#" onClick={nextPage} />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                )}
               </div>
             </div>
           </header>
