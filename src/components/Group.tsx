@@ -16,12 +16,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faPencil,
-  faXmark,
-  faPlus,
-  faInfo,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPencil, faXmark, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { Button } from "@/components/ui/button";
 import {
   Navbar as NavbarComponent,
@@ -33,6 +28,7 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import { Child } from "@/models/Child";
 import { useContext, useState } from "react";
+import axios from "axios";
 
 const Group: React.FC = () => {
   const location = useLocation();
@@ -60,6 +56,35 @@ const Group: React.FC = () => {
   const handleLogout = () => {
     authContext?.logout();
     navigate("/login");
+  };
+
+  const handleRemoveChildFromGroup = async (childId: string) => {
+    try {
+      const removedChild = currentChildren.find(
+        (child: Child) => child.id === Number(childId)
+      );
+      if (removedChild) {
+        await axios.put(
+          `http://localhost:8080/children/${childId}`,
+          {
+            id: removedChild.id,
+            name: removedChild.name,
+            surname: removedChild.surname,
+            dateOfBirth: removedChild.dateOfBirth,
+            groupId: null,
+          },
+          {
+            headers: { Authorization: localStorage.getItem("token") },
+          }
+        );
+      }
+
+      setFilteredChildren((prevChildren) =>
+        prevChildren.filter((child: Child) => child.id !== childId)
+      );
+    } catch (error) {
+      console.error("Error removing child from group:", error);
+    }
   };
 
   const sortedChildren = filteredChildren.sort(
@@ -138,11 +163,13 @@ const Group: React.FC = () => {
                         className="cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faPlus} />
+                        Add child to group
                       </Button>
                       <input
                         type="text"
-                        placeholder="Search by name, surname, date of birth, or age"
-                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-120"
+                        placeholder="&#128269;  Search by name, surname, date of birth or age"
+                        className="border border-gray-300 rounded-md px-4 py-2 ml-3 w-120"
+                        style={{ height: "37px" }}
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
                           const filteredChildren = group.children.filter(
@@ -200,37 +227,23 @@ const Group: React.FC = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
-                              id="child-info"
-                              variant="default"
-                              //   onClick={() =>
-                              //     navigate(`/groups/${group.id}`, {
-                              //       state: { group },
-                              //     })
-                              //   }
-                              className="cursor-pointer mr-2"
-                            >
-                              <FontAwesomeIcon icon={faInfo} />
-                            </Button>
-                            <Button
                               id="child-edit"
                               variant="default"
-                              // onClick={() =>
-                              //   navigate(`/group-form/${group.id}`, {
-                              //     state: { group },
-                              //   })
-                              // }
                               className="cursor-pointer mr-2"
                             >
                               <FontAwesomeIcon icon={faPencil} />
+                              Edit child
                             </Button>
                             <Button
-                              id="group-delete"
+                              id="remove-child-from-group"
                               variant="default"
-                              //   onClick={}
                               className="cursor-pointer"
-                              //   disabled={group.children.length === 0}
+                              onClick={() =>
+                                handleRemoveChildFromGroup(child.id.toString())
+                              }
                             >
                               <FontAwesomeIcon icon={faXmark} />
+                              Remove child from group
                             </Button>
                           </TableCell>
                         </TableRow>

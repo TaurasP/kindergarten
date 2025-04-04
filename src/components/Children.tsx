@@ -28,12 +28,7 @@ import {
   TableRow,
 } from "./ui/table";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faInfo,
-  faPencil,
-  faPlus,
-  faXmark,
-} from "@fortawesome/free-solid-svg-icons";
+import { faPencil, faPlus, faXmark } from "@fortawesome/free-solid-svg-icons";
 
 const Children: React.FC = () => {
   const [children, setChildren] = useState<Child[]>([]);
@@ -52,7 +47,6 @@ const Children: React.FC = () => {
   useEffect(() => {
     const fetchChildrenAndGroups = async () => {
       try {
-        // Fetch children
         const childrenResponse = await axios.get<Child[]>(
           "http://localhost:8080/children",
           {
@@ -60,7 +54,6 @@ const Children: React.FC = () => {
           }
         );
 
-        // Fetch groups
         const groupsResponse = await axios.get<Group[]>(
           "http://localhost:8080/groups",
           {
@@ -70,7 +63,6 @@ const Children: React.FC = () => {
 
         setGroups(groupsResponse.data);
 
-        // Map groupId to groupName for each child
         const childrenWithGroupNames = childrenResponse.data.map((child) => {
           const group = groupsResponse.data.find(
             (group) => group.id === child.groupId
@@ -103,6 +95,22 @@ const Children: React.FC = () => {
       age--;
     }
     return age;
+  };
+
+  const handleDeleteChild = async (id: string) => {
+    try {
+      await axios.delete(`http://localhost:8080/children/${id}`, {
+        headers: { Authorization: localStorage.getItem("token") },
+      });
+      setChildren((prevChildren) =>
+        prevChildren.filter((child) => child.id !== Number(id))
+      );
+      setChildrenResponse((prevChildrenResponse) =>
+        prevChildrenResponse.filter((child) => child.id !== id)
+      );
+    } catch (error) {
+      console.error("Error deleting child:", error);
+    }
   };
 
   const indexOfLastChild = currentPage * childrenPerPage;
@@ -171,11 +179,13 @@ const Children: React.FC = () => {
                         className="cursor-pointer mr-3"
                       >
                         <FontAwesomeIcon icon={faPlus} />
+                        Add new child
                       </Button>
                       <input
                         type="text"
-                        placeholder="Search by name, surname, date of birth, or age"
-                        className="border border-gray-300 rounded px-4 py-2 h-9 w-100"
+                        placeholder="&#128269;  Search by name, surname, date of birth or age"
+                        className="border border-gray-300 rounded-md px-4 py-2 w-120"
+                        style={{ height: "37px" }}
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
                           const filteredChildren = childrenResponse.filter(
@@ -242,25 +252,23 @@ const Children: React.FC = () => {
                           </TableCell>
                           <TableCell className="text-right">
                             <Button
-                              id="child-info"
-                              variant="default"
-                              className="cursor-pointer mr-2"
-                            >
-                              <FontAwesomeIcon icon={faInfo} />
-                            </Button>
-                            <Button
                               id="child-edit"
                               variant="default"
                               className="cursor-pointer mr-2"
                             >
                               <FontAwesomeIcon icon={faPencil} />
+                              Edit child
                             </Button>
                             <Button
                               id="child-delete"
                               variant="default"
                               className="cursor-pointer"
+                              onClick={() =>
+                                handleDeleteChild(child.id.toString())
+                              }
                             >
                               <FontAwesomeIcon icon={faXmark} />
+                              Remove child
                             </Button>
                           </TableCell>
                         </TableRow>

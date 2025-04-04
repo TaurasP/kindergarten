@@ -142,11 +142,13 @@ const Groups: React.FC = () => {
                         className="cursor-pointer"
                       >
                         <FontAwesomeIcon icon={faPlus} />
+                        Add new group
                       </Button>
                       <input
                         type="text"
-                        placeholder="Search by group name or number of children in the group"
-                        className="border border-gray-300 rounded px-4 py-2 ml-3 h-9 w-120"
+                        placeholder="&#128269;  Search by group name or number of children in the group"
+                        className="border border-gray-300 rounded-md px-4 py-2 ml-3 w-120"
+                        style={{ height: "37px" }}
                         onChange={(e) => {
                           const searchTerm = e.target.value.toLowerCase();
                           const filteredGroups = groupResponse.filter(
@@ -201,6 +203,7 @@ const Groups: React.FC = () => {
                               disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faInfo} />
+                              View group
                             </Button>
                             <Button
                               id="group-edit"
@@ -213,6 +216,7 @@ const Groups: React.FC = () => {
                               className="cursor-pointer mr-2"
                             >
                               <FontAwesomeIcon icon={faPencil} />
+                              Edit group
                             </Button>
                             <Button
                               id="group-delete"
@@ -222,6 +226,7 @@ const Groups: React.FC = () => {
                               //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faXmark} />
+                              Remove group
                             </Button>
                           </TableCell>
                         </TableRow>

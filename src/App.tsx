@@ -7,6 +7,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Group from "./components/Group";
 import GroupForm from "./components/GroupForm";
 import Children from "./components/Children";
+import ChildForm from "./components/ChildForm";
 
 function App() {
   return (
@@ -53,6 +54,30 @@ function App() {
             element={
               <ProtectedRoute>
                 <Children />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/children/:id"
+            element={
+              <ProtectedRoute>
+                <Children />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/child-form"
+            element={
+              <ProtectedRoute>
+                <ChildForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/child-form/:id"
+            element={
+              <ProtectedRoute>
+                <ChildForm />
               </ProtectedRoute>
             }
           />
