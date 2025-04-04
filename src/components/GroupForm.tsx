@@ -5,7 +5,12 @@ import axios from "axios";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { AuthContext } from "@/context/AuthContext";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faXmark } from "@fortawesome/free-solid-svg-icons";
+import {
+  faXmark,
+  faPlus,
+  faFloppyDisk,
+  faCheck,
+} from "@fortawesome/free-solid-svg-icons";
 import {
   Pagination,
   PaginationContent,
@@ -97,10 +102,13 @@ const GroupForm: React.FC = () => {
 
   const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    const regex = /^[a-zA-Z\s]*$/;
+    const regex =
+      /^[a-zA-Z\u0104\u0106\u0118\u0116\u012E\u0172\u017D\u017B\u016A\u0172\s!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/;
 
     if (!regex.test(value)) {
-      setGroupNameError("Group name can only contain letters and spaces.");
+      setGroupNameError(
+        "Group name can only contain letters, spaces, Lithuanian characters (Ą, Č, Ę, Ė, Į, Ų, Ū, Ž), and symbols."
+      );
     } else {
       setGroupNameError(null);
       setGroup({ ...group, name: value });
@@ -315,6 +323,7 @@ const GroupForm: React.FC = () => {
                         onClick={handleSubmit}
                         className="cursor-pointer"
                       >
+                        <FontAwesomeIcon icon={faFloppyDisk} />
                         Save changes
                       </Button>
                       <input
@@ -370,9 +379,19 @@ const GroupForm: React.FC = () => {
                                   (c) => c.id === child.id
                                 )}
                               >
-                                {group.children.some((c) => c.id === child.id)
-                                  ? "Child is added to group"
-                                  : "Add child to group"}
+                                {group.children.some(
+                                  (c) => c.id === child.id
+                                ) ? (
+                                  <>
+                                    <FontAwesomeIcon icon={faCheck} /> Child is
+                                    added to group
+                                  </>
+                                ) : (
+                                  <>
+                                    <FontAwesomeIcon icon={faPlus} /> Add child
+                                    to group
+                                  </>
+                                )}
                               </Button>
                             </TableCell>
                           </TableRow>

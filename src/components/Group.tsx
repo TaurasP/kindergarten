@@ -236,6 +236,11 @@ const Group: React.FC = () => {
                               id="child-edit"
                               variant="default"
                               className="cursor-pointer mr-2"
+                              onClick={() =>
+                                navigate(`/child-form/${child.id}`, {
+                                  state: { child },
+                                })
+                              }
                             >
                               <FontAwesomeIcon icon={faPencil} />
                               Edit child
