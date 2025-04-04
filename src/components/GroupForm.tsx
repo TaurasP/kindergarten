@@ -44,7 +44,7 @@ const GroupForm: React.FC = () => {
   const authContext = useContext(AuthContext);
   const [currentPage, setCurrentPage] = useState(1);
   const childrenPerPage = 5;
-  const childrenInGroupPerPage = 5; // Number of children per page for the second table
+  const childrenInGroupPerPage = 5;
   const [currentGroupPage, setCurrentGroupPage] = useState(1);
 
   const indexOfLastGroupChild = currentGroupPage * childrenInGroupPerPage;
@@ -93,8 +93,18 @@ const GroupForm: React.FC = () => {
     }
   }, [id, location.state]);
 
+  const [groupNameError, setGroupNameError] = useState<string | null>(null);
+
   const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setGroup({ ...group, name: e.target.value });
+    const value = e.target.value;
+    const regex = /^[a-zA-Z\s]*$/;
+
+    if (!regex.test(value)) {
+      setGroupNameError("Group name can only contain letters and spaces.");
+    } else {
+      setGroupNameError(null);
+      setGroup({ ...group, name: value });
+    }
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -288,9 +298,16 @@ const GroupForm: React.FC = () => {
                     value={group.name}
                     onChange={handleGroupNameChange}
                     placeholder="Group name"
-                    className="border border-gray-300 rounded-md px-4 py-2 mb-3 w-130"
+                    className={`border ${
+                      groupNameError ? "border-red-500" : "border-gray-300"
+                    } rounded-md px-4 py-2 mb-3 w-130`}
                     style={{ height: "37px" }}
                   />
+                  {groupNameError && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {groupNameError}
+                    </p>
+                  )}
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center">
                       <Button
