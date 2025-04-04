@@ -76,6 +76,22 @@ const Groups: React.FC = () => {
     fetchGroups();
   }, []);
 
+  const handleDeleteGroup = async (groupId: number) => {
+    if (window.confirm("Are you sure you want to delete this group?")) {
+      try {
+        await axios.delete(`http://localhost:8080/groups/${groupId}`, {
+          headers: { Authorization: localStorage.getItem("token") },
+        });
+        const updatedGroups = groups.filter((group) => group.id !== groupId);
+        setGroups(updatedGroups);
+        setGroupResponse(updatedGroups);
+      } catch (error) {
+        console.error("Error deleting group:", error);
+        alert("Failed to delete the group. Please try again.");
+      }
+    }
+  };
+
   const indexOfLastGroup = currentPage * groupsPerPage;
   const indexOfFirstGroup = indexOfLastGroup - groupsPerPage;
   const currentGroups = groups.slice(indexOfFirstGroup, indexOfLastGroup);
@@ -221,9 +237,8 @@ const Groups: React.FC = () => {
                             <Button
                               id="group-delete"
                               variant="default"
-                              //   onClick={}
+                              onClick={() => handleDeleteGroup(group.id)}
                               className="cursor-pointer mr-2"
-                              //   disabled={group.children.length === 0}
                             >
                               <FontAwesomeIcon icon={faXmark} />
                               Remove group

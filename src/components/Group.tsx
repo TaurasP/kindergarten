@@ -159,13 +159,17 @@ const Group: React.FC = () => {
                   <div className="flex items-center justify-between mb-5">
                     <div className="flex items-center">
                       <Button
-                        id="child-add-to-group"
+                        id="group-edit"
                         variant="default"
-                        //   onClick={() => navigate("/child-form")}
+                        onClick={() =>
+                          navigate(`/group-form/${group.id}`, {
+                            state: { group },
+                          })
+                        }
                         className="cursor-pointer"
                       >
-                        <FontAwesomeIcon icon={faPlus} />
-                        Add child to group
+                        <FontAwesomeIcon icon={faPencil} />
+                        Edit group
                       </Button>
                       <input
                         type="text"
