@@ -175,9 +175,9 @@ const Groups: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {currentGroups.map((group, index) => (
-                        <TableRow>
+                        <TableRow key={group.id}>
                           <TableCell>{index + 1}</TableCell>
-                          <TableCell key={index}>{group.name}</TableCell>
+                          <TableCell>{group.name}</TableCell>
                           <TableCell
                             style={{
                               color:

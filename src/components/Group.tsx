@@ -60,7 +60,7 @@ const Group: React.FC = () => {
 
   const handleRemoveChildFromGroup = async (childId: string) => {
     try {
-      const removedChild = currentChildren.find(
+      const removedChild = filteredChildren.find(
         (child: Child) => child.id === Number(childId)
       );
       if (removedChild) {
@@ -80,7 +80,7 @@ const Group: React.FC = () => {
       }
 
       setFilteredChildren((prevChildren) =>
-        prevChildren.filter((child: Child) => child.id !== childId)
+        prevChildren.filter((child: Child) => child.id !== Number(childId))
       );
     } catch (error) {
       console.error("Error removing child from group:", error);
@@ -90,12 +90,18 @@ const Group: React.FC = () => {
   const sortedChildren = filteredChildren.sort(
     (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name)
   );
+
   const indexOfLastChild = currentPage * childrenPerPage;
   const indexOfFirstChild = indexOfLastChild - childrenPerPage;
+
   const currentChildren = sortedChildren.slice(
     indexOfFirstChild,
     indexOfLastChild
   );
+
+  if (!group) {
+    return <div>No group data available.</div>;
+  }
 
   const nextPage = () => {
     if (currentPage < Math.ceil(filteredChildren.length / childrenPerPage)) {
@@ -108,10 +114,6 @@ const Group: React.FC = () => {
       setCurrentPage(currentPage - 1);
     }
   };
-
-  if (!group) {
-    return <div>No group data available.</div>;
-  }
 
   return (
     <>
@@ -167,7 +169,7 @@ const Group: React.FC = () => {
                       </Button>
                       <input
                         type="text"
-                        placeholder="&#128269;  Search by name, surname, date of birth or age"
+                        placeholder="&#128269;  Search child by name, surname, date of birth or age"
                         className="border border-gray-300 rounded-md px-4 py-2 ml-3 w-120"
                         style={{ height: "37px" }}
                         onChange={(e) => {
@@ -211,7 +213,7 @@ const Group: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {currentChildren.map((child: Child, index: number) => (
-                        <TableRow key={index}>
+                        <TableRow key={child.id}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{child.name}</TableCell>
                           <TableCell>{child.surname}</TableCell>

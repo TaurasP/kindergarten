@@ -228,7 +228,7 @@ const Children: React.FC = () => {
                     </TableHeader>
                     <TableBody>
                       {currentChildren.map((child: Child, index: number) => (
-                        <TableRow key={index}>
+                        <TableRow key={child.id}>
                           <TableCell>{index + 1}</TableCell>
                           <TableCell>{child.name}</TableCell>
                           <TableCell>{child.surname}</TableCell>
